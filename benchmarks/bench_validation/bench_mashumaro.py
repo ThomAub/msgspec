@@ -37,8 +37,18 @@ class Directory(DataClassORJSONMixin):
     created_at: datetime.datetime
     updated_by: str | None = None
     updated_at: datetime.datetime | None = None
-    contents: list[File | Directory]
+    contents: list[File]
     type: Literal["directory"] = "directory"
+
+    class Config:
+        omit_default = True
+        lazy_compilation = True
+
+
+@dataclasses.dataclass(kw_only=True)
+class Directories(DataClassORJSONMixin):
+    directories: list[Directory]
+    type: str = "directories"
 
     class Config:
         omit_default = True
@@ -53,4 +63,4 @@ def encode(x):
 
 
 def decode(msg):
-    return Directory.from_json(msg)
+    return Directories.from_json(msg)

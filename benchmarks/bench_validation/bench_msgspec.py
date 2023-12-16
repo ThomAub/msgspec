@@ -28,11 +28,15 @@ class Directory(msgspec.Struct, kw_only=True, omit_defaults=True, tag="directory
     created_at: datetime.datetime
     updated_by: str | None = None
     updated_at: datetime.datetime | None = None
-    contents: list[File | Directory]
+    contents: list[File]
+
+
+class Directories(msgspec.Struct, kw_only=True, omit_defaults=True):
+    directories: list[Directory]
 
 
 enc = msgspec.json.Encoder()
-dec = msgspec.json.Decoder(Directory)
+dec = msgspec.json.Decoder(Directories)
 
 label = "msgspec"
 encode = enc.encode

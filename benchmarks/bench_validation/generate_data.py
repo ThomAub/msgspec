@@ -1,6 +1,7 @@
 import datetime
 import random
 import string
+from rich import print
 
 
 class Generator:
@@ -50,7 +51,7 @@ class Generator:
             min = self.random.randint(min, max)
         return "".join(self.random.choices(string.ascii_letters, k=min))
 
-    def make(self, is_dir):
+    def _make(self, is_dir=False):
         name = self.randstr(4, 30)
         created_by = self.random.choice(self.NAMES)
         created_at = self.randdt(self.DATE_2018, self.DATE_2023)
@@ -67,29 +68,38 @@ class Generator:
                 updated_by=updated_by,
                 updated_at=updated_at.isoformat(),
             )
-        if is_dir:
-            n = min(self.random.randint(0, 30), self.capacity)
-            self.capacity -= n
-            data["contents"] = [self.make_node() for _ in range(n)]
-        else:
-            data["nbytes"] = self.random.randint(0, 1000000)
-            data["permissions"] = self.random.choice(self.PERMISSIONS)
+        return data
+
+    def make_file(self):
+        data = self._make()
+        data["nbytes"] = self.random.randint(0, 1000000)
+        data["permissions"] = self.random.choice(self.PERMISSIONS)
+        return data
+
+    def make_dir(self):
+        data = self._make(True)
+        n = min(self.random.randint(0, 30), self.capacity)
+        self.capacity -= n
+        data["contents"] = self.make_node()
         return data
 
     def make_node(self):
-        return self.make(self.random.random() > 0.8)
+        return [self.make_file() for _ in range(self.random.randint(1, 30))]
 
     def generate(self):
-        self.capacity -= 1
-        if self.capacity == 0:
-            out = self.make(False)
-        else:
-            out = self.make(True)
-            while self.capacity:
-                self.capacity -= 1
-                out["contents"].append(self.make_node())
+        directories = []
+        for _ in range(self.capacity):
+            directories.append(self.make_dir())
+        out = {
+            "type": "directories",
+            "directories": directories,
+        }
         return out
 
 
 def make_filesystem_data(n):
     return Generator(n).generate()
+
+
+if __name__ == "__main__":
+    print(make_filesystem_data(1))

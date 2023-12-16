@@ -1,12 +1,12 @@
 import argparse
 import json
 import tempfile
-from ..generate_data import make_filesystem_data
+from generate_data import make_filesystem_data
 import sys
 import subprocess
 
 
-LIBRARIES = ["msgspec", "mashumaro", "cattrs", "pydantic"]
+LIBRARIES = ["msgspec", "mashumaro", "pydantic", "marshmallow", "cattrs"]
 
 
 def parse_list(value):
@@ -55,7 +55,6 @@ if args.versions:
 
 
 data = json.dumps(make_filesystem_data(args.n)).encode("utf-8")
-
 results = []
 with tempfile.NamedTemporaryFile() as f:
     f.write(data)

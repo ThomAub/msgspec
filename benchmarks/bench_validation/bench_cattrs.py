@@ -33,8 +33,14 @@ class Directory:
     created_at: datetime.datetime
     updated_by: str | None = None
     updated_at: datetime.datetime | None = None
-    contents: list[File | Directory]
+    contents: list[File]
     type: Literal["directory"] = "directory"
+
+
+@attrs.define(kw_only=True)
+class Directories:
+    directories: list[Directory]
+    type: str = "directories"
 
 
 converter = cattrs.preconf.orjson.make_converter(omit_if_default=True)
@@ -45,7 +51,7 @@ def encode(obj):
 
 
 def decode(msg):
-    return converter.loads(msg, Directory)
+    return converter.loads(msg, Directories)
 
 
 label = "cattrs"

@@ -31,7 +31,12 @@ class Directory(pydantic.BaseModel):
     created_at: datetime.datetime
     updated_by: str | None = None
     updated_at: datetime.datetime | None = None
-    contents: list[Annotated[File | Directory, pydantic.Field(discriminator="type")]]
+    contents: list[File]
+
+
+class Directories(pydantic.BaseModel):
+    directories: list[Directory]
+    type: str = "directories"
 
 
 if pydantic.__version__.startswith("2."):
@@ -41,7 +46,7 @@ if pydantic.__version__.startswith("2."):
         return obj.model_dump_json(exclude_defaults=True)
 
     def decode(msg):
-        return Directory.model_validate_json(msg)
+        return Directories.model_validate_json(msg)
 
 else:
     label = "pydantic v1"
@@ -50,4 +55,4 @@ else:
         return obj.json(exclude_defaults=True)
 
     def decode(msg):
-        return Directory.parse_raw(msg)
+        return Directories.parse_raw(msg)
